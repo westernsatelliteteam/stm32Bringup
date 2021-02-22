@@ -2,7 +2,8 @@ TARGET = COM
 DEBUG = 1
 BUILD_DIR = _build
 BUILD_CONFIG ?= DEBUG
-BOARD_VERSION ?= DISCO
+#BOARD_VERSION ?= DISCO
+BOARD_VERSION ?= NUCLEO
 
 
 WST_ROOT = ../../../..
@@ -15,17 +16,18 @@ SDK_ROOT = $(WST_ROOT)/dependencies/stm/STM32F4_Cube
 FREERTOS_ROOT = $(WST_ROOT)/dependencies/freertos/FreeRTOSv10.4.1/FreeRTOS/Source
 FREERTOS_PORTABLE = $(FREERTOS_ROOT)/portable/GCC/ARM_CM4F
 HAL_DIR = $(SDK_ROOT)/Drivers/STM32F4xx_HAL_Driver
-BSP_DIR = $(SDK_ROOT)/Drivers/BSP/STM32412G-Discovery
+ifeq ($(BOARD_VERSION), DISCO)
+BSP_DIR = $(SDK_ROOT)/Drivers/BSP/STM32412G-DISCOVERY
+endif
+ifeq ($(BOARD_VERSION), NUCLEO)
+BSP_DIR = $(SDK_ROOT)/Drivers/BSP/STM32F4xx_Nucleo_144
+endif
 CMSIS_DIR = $(SDK_ROOT)/Drivers/CMSIS
 
 ######################################
 # source
 ######################################
 # C sources
-ifeq ($(BOARD_VERSION), DISCO)
-$C_SOURCES += (BSP_DIR)/stm32412g_discovery.c
-endif
-
 C_SOURCES = \
 $(HAL_DIR)/Src/stm32f4xx_hal.c \
 $(HAL_DIR)/Src/stm32f4xx_hal_cortex.c \
@@ -48,8 +50,22 @@ $(PROJ_DIR)/src/i2c.c \
 $(PROJ_DIR)/src/stm32f4xx_it.c \
 $(PROJ_DIR)/src/system_stm32f4xx.c \
 
+ifeq ($(BOARD_VERSION), DISCO)
+C_SOURCES += $(BSP_DIR)/stm32412g_discovery.c
+endif
+
+ifeq ($(BOARD_VERSION), NUCLEO)
+C_SOURCES += $(BSP_DIR)/stm32f4xx_nucleo_144.c
+endif
+
+
+
 # ASM sources
 ifeq ($(BOARD_VERSION), DISCO)
+STARTUP_FILE = startup_stm32f412zx.s
+endif
+
+ifeq ($(BOARD_VERSION), NUCLEO)
 STARTUP_FILE = startup_stm32f412zx.s
 endif
 
@@ -61,6 +77,11 @@ AS_INCLUDES =
 ifeq ($(BOARD_VERSION), DISCO)
 C_INCLUDES += -I$(BSP_DIR)/
 endif
+
+ifeq ($(BOARD_VERSION), NUCLEO)
+C_INCLUDES += -I$(BSP_DIR)/
+endif
+
 # C includes
 C_INCLUDES += \
 			-I$(HAL_DIR)/Inc \
@@ -79,18 +100,20 @@ AS_DEFS =
 ifeq ($(BOARD_VERSION), DISCO)
 CHIPSET_DEF = STM32F412Zx
 C_DEFS += -DUSE_STM32412G_DISCOVERY
-C_DEFS += -DBOARD_VDISCO
+C_DEFS += -DBOARD_DISCO
+endif
+
+ifeq ($(BOARD_VERSION), NUCLEO)
+CHIPSET_DEF = STM32F412Zx
+C_DEFS += -DUSE_STM32F4XX_NUCLEO_144
+C_DEFS += -DBOARD_NUCLEO
 endif
 
 # C defines
 C_DEFS +=  \
--DHEDWIG \
 -DUSE_HAL_DRIVER \
 -D$(CHIPSET_DEF) \
 -D$(BUILD_CONFIG) \
--DMEMS_20648 \
--DMEMS_SECONDARY_DEVICE \
--DMEMS_AUGMENTED_SENSORS
 
 OPT = -O0 -g3
 
