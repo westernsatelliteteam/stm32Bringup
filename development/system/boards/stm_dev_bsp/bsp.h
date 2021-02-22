@@ -3,7 +3,14 @@
 
 #include <stdint.h>
 
+#ifdef BOARD_DISCO
 #include "stm32412g_discovery.h"
+#endif
+
+#ifdef BOARD_NUCLEO
+#include "stm32f4xx_nucleo_144.h"
+#endif
+
 #include "wst_common.h"
 
 void bsp_board_bringup(void);

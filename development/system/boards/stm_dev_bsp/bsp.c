@@ -152,8 +152,8 @@ int bsp_i2c_write(wst_i2c_handle_t *handle,
              uint16_t length,
              uint8_t *data)
 {
-  while(HAL_I2C_Mem_Write(handle, ((uint16_t)slave_addr<<1), reg_addr, 1U, data, length, 25U)) {
-    if (HAL_I2C_GetError(handle) != HAL_I2C_ERROR_AF) {
+  while(HAL_I2C_Mem_Write(handle, ((uint16_t)slave_addr<<1), reg_addr, 1U, data, length, 25U) != HAL_OK) {
+    if (HAL_I2C_GetError(handle) != HAL_I2C_ERROR_NONE) {
       return WST_ERR;
     }
   }
@@ -166,8 +166,8 @@ int bsp_i2c_read(wst_i2c_handle_t *handle,
              uint16_t length,
              uint8_t *data)
 {
-  while(HAL_I2C_Mem_Read(handle, ((uint16_t)slave_addr<<1), reg_addr, 1U, data, length, 25U)) {
-    if (HAL_I2C_GetError(handle) != HAL_I2C_ERROR_AF) {
+  while(HAL_I2C_Mem_Read(handle, ((uint16_t)slave_addr<<1), reg_addr, 1U, data, length, 25U) != HAL_OK) {
+    if (HAL_I2C_GetError(handle) != HAL_I2C_ERROR_NONE) {
       return WST_ERR;
     }
   }
